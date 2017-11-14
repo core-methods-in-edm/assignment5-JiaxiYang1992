@@ -8,15 +8,22 @@ For this assignment we will be using data from the Assistments Intelligent Tutor
 
 #Install & call libraries
 ```{r}
-install.packages("party", "rpart")
-
+install.packages("party")
+install.packages("rpart")
+install.packages("grid")
+install.packages("mvtnorm")
+install.packages("modeltools")
+install.packages("stats4")
+install.packages("strucchange")
+install.packages("zoo")
+install.packages("sandwich")
 library(rpart)
 library(party)
 ```
 
 ## Part I
 ```{r}
-D1 <- 
+D1 <- read.csv("intelligent_tutor.csv",header=TRUE)
 ```
 
 ##Classification Tree
@@ -29,7 +36,7 @@ c.tree <- rpart(action ~ hint.y + complete, method="class", data=D1) #Notice the
 printcp(c.tree)
 
 #Plot the tree
-post(c.tree, file = "tree.ps", title = "Session Completion Action: 1 - Ask teacher, 2 - Start new session, 3 - Give up")
+post(c.tree, file = "", title = "Session Completion Action: 1 - Ask teacher, 2 - Start new session, 3 - Give up")
 
 ```
 ## Part II
@@ -66,7 +73,7 @@ Upload the data "intelligent_tutor_new.csv". This is a data set of a differnt sa
 ```{r}
 #Upload new data
 
-D2 <- 
+D2 <- read.csv("intelligent_tutor_new.csv",header=TRUE)
 
 #Generate predicted advice for new students based on tree generated from old students
 
@@ -75,3 +82,11 @@ D2$prediction <- predict(score_ctree, D2)
 ``` 
 ## Part III
 Compare the predicted advice with the actual advice that these studnts recieved. What is the difference between the observed and predicted results?
+
+```{r}
+levels(D2$prediction)
+D2$advice <- ifelse(D2$score <=0.4, "intervene", ifelse(D2$score > 0.4 & D2$score <=0.8, "monitor", "no action"))
+sum(D2$prediction=="monitor")
+sum(D2$prediction=="intervene")
+
+# We found that there are 84 incorrect predictions with the tree methods. They were misjudged from "no action" to "monitor".
